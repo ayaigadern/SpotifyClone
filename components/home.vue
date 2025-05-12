@@ -107,6 +107,30 @@ onMounted(async () => {
               </div>
             </div>
           </div>
+
+          <!--Search Results - Playlist-->
+       
+        <div v-if="spotifySearchResults.playlists?.items?.length > 0">
+            <h2 class="text-white text-2xl font-bold mb-4">Playlists</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div
+                    v-for="(playlist, index) in spotifySearchResults.playlists.items.filter(item => item)"
+                    :key="index"
+                    class="bg-[#1e1e1e] p-4 rounded-lg cursor-pointer hover:bg-[#282828]"
+                    @click="$emit('open-playlist', playlist)"
+                >
+                    <img :src="playlist.images?.[0]?.url" alt="Playlist Cover" class="w-full h-32 object-cover rounded-md mb-2" />
+                    <h3 class="text-white text-lg font-semibold">
+                      <a :href="playlist.external_urls.spotify" target="_blank" class="hover:underline">
+                        {{ playlist.name }}
+                      </a>
+                    </h3>
+                    <p class="text-gray-400 text-sm mb-1 truncate">{{ playlist.description || '' }}</p>
+                    <p class="text-gray-400 text-sm">By: {{ playlist.owner.display_name }}</p>
+                    <p class="text-gray-400 text-sm">Tracks: {{ playlist.tracks.total }}</p>
+                </div>
+            </div>
+        </div>
         </template>
 
         <!-- User's Content (shown when not searching) -->

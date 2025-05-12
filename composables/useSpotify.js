@@ -193,15 +193,15 @@ const searchResults = ref({ tracks: [], albums: [], artists: [] });
   const searchSpotify = async (query) => {
     try {
       if (!query.trim()) {
-        searchResults.value = { tracks: [], albums: [], artists: [] };
+        searchResults.value = { tracks: [], albums: [], artists: [],playlists:[] };
         return searchResults.value;
       }
-      const data = await callApi(`/search?q=${encodeURIComponent(query)}&type=track,album,artist&limit=5`);
+      const data = await callApi(`/search?q=${encodeURIComponent(query)}&type=track,album,artist,playlist&limit=5`);
       searchResults.value = data;
       return data;
     } catch (error) {
       console.error('Error searching Spotify:', error);
-      searchResults.value = { tracks: [], albums: [], artists: [] };
+      searchResults.value = { tracks: [], albums: [], artists: [],playlists:[] };
       throw error;
     }
   };
@@ -238,6 +238,65 @@ const searchResults = ref({ tracks: [], albums: [], artists: [] });
     }
   };
 
+  const removeTracksFromPlaylist = async (playlistId, trackUris) => {
+    try {
+      if (!playlistId || typeof playlistId !== 'string') {
+        throw new Error('Invalid playlist ID');
+      }
+      if (!Array.isArray(trackUris) || trackUris.length === 0) {
+        throw new Error('Track URIs must be a non-empty array');
+      }
+      const validUris = trackUris.filter((uri) => typeof uri === 'string' && uri.startsWith('spotify:track:'));
+      if (validUris.length === 0) {
+        throw new Error('No valid track URIs provided');
+      }
+
+      console.log('Removing tracks from playlist:', { playlistId, uris: validUris });
+
+      const response = await callApi(`/playlists/${playlistId}/tracks`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          tracks: validUris.map((uri) => ({ uri })),
+        },
+      });
+
+      console.log('Remove tracks response:', response);
+      return response;
+    } catch (error) {
+      console.error('Error removing tracks from playlist:', error);
+      throw error;
+    }
+  };
+
+  const updatePlaylist = async (playlistId, details) => {
+    try {
+      if (!playlistId || typeof playlistId !== 'string') {
+        throw new Error('Invalid playlist ID');
+      }
+      if (!details || typeof details !== 'object') {
+        throw new Error('Invalid playlist details');
+      }
+
+      console.log('Updating playlist details:', { playlistId, details });
+
+      const response = await callApi(`/playlists/${playlistId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: details,
+      });
+
+      console.log('Update playlist response:', response);
+      return response;
+    } catch (error) {
+      console.error('Error updating playlist:', error);
+      throw error;
+    }
+  };
     
     const fetchUserProfile = async () => {
     try {
@@ -296,7 +355,10 @@ const searchResults = ref({ tracks: [], albums: [], artists: [] });
     searchResults,
     searchSpotify,
     createPlaylist,
-    addTracksToPlaylist
+    addTracksToPlaylist,
+    removeTracksFromPlaylist,
+    updatePlaylist,
+    getAccessToken,
 
   };
 
