@@ -201,7 +201,10 @@ const playTrack = (track) => {
     </div>
 
     <!-- Media Player -->
-    <media-player :currentTrack="currentTrack" />
+    <media-player :currentTrack="currentTrack"
+    @close-player="currentTrack = null"
+    @next-track="playNextTrack"
+    @previous-track="playPreviousTrack" />
   </div>
 </template>
 

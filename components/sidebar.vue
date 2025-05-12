@@ -161,13 +161,23 @@ const editingPlaylist = ref(null);
 // Function to open the edit modal
 const openEditPlaylistModal = async (playlist) => {
   try {
-    editingPlaylist.value = { ...playlist };
-    selectedSongs.value = []; // Clear previous selections
+    // Initialize editingPlaylist with proper structure
+    editingPlaylist.value = {
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description || '',
+      tracks: [], // Initialize empty array to be filled
+      uri: playlist.uri
+    };
+    
+    // Clear previous selections
+    selectedSongs.value = []; 
 
-    // Fetch tracks from the playlist endpoint using getAccessToken
+    // Fetch tracks from the playlist endpoint
     const accessToken = getAccessToken();
     let nextUrl = playlist.tracks.href;
 
+    // Fetch all tracks using pagination
     while (nextUrl) {
       const response = await fetch(nextUrl, {
         headers: {
@@ -180,14 +190,28 @@ const openEditPlaylistModal = async (playlist) => {
       }
 
       const data = await response.json();
-      selectedSongs.value.push(...data.items.map((item) => item.track)); // Append fetched tracks
-
-      nextUrl = data.next; // Update nextUrl to fetch the next page of tracks
+      
+      // Process track data and add to selectedSongs
+      const tracks = data.items
+        .filter(item => item.track) // Filter out any null tracks
+        .map(item => ({
+          id: item.track.id,
+          name: item.track.name,
+          uri: item.track.uri,
+          album: item.track.album,
+          artists: item.track.artists
+        }));
+      
+      selectedSongs.value.push(...tracks);
+      editingPlaylist.value.tracks = [...editingPlaylist.value.tracks, ...tracks];
+      
+      nextUrl = data.next; // Get next page URL if it exists
     }
 
     showEditPlaylistModal.value = true;
   } catch (error) {
     console.error("Error fetching playlist tracks:", error);
+    alert("Failed to load playlist tracks. Please try again.");
   }
 };
 
@@ -204,32 +228,34 @@ const updatePlaylistDetails = async () => {
       description: editingPlaylist.value.description,
     });
 
-    // Add or remove songs if needed
-    console.log(editingPlaylist.value.tracks);
-    const currentTrackUris = editingPlaylist.value.tracks?.map((track) => track.uri) || [];
-    const newTrackUris = selectedSongs.value.map((song) => song.uri);
+    // Get current and new track URIs
+    const currentTrackUris = editingPlaylist.value.tracks.map(track => track.uri);
+    const newTrackUris = selectedSongs.value.map(song => song.uri);
 
-    const tracksToAdd = newTrackUris.filter(
-      (uri) => !currentTrackUris.includes(uri)
-    );
-    const tracksToRemove = currentTrackUris.filter(
-      (uri) => !newTrackUris.includes(uri)
-    );
+    // Find tracks to add and remove
+    const tracksToAdd = newTrackUris.filter(uri => !currentTrackUris.includes(uri));
+    const tracksToRemove = currentTrackUris.filter(uri => !newTrackUris.includes(uri));
 
+    // Add new tracks if any
     if (tracksToAdd.length > 0) {
       await addTracksToPlaylist(editingPlaylist.value.id, tracksToAdd);
     }
 
+    // Remove tracks if any
     if (tracksToRemove.length > 0) {
       await removeTracksFromPlaylist(editingPlaylist.value.id, tracksToRemove);
     }
 
-    // Refresh playlists
+    // Refresh playlists and close modal
     await fetchUserPlaylists();
     showEditPlaylistModal.value = false;
+    
+    // Reset form state
+    editingPlaylist.value = null;
+    selectedSongs.value = [];
   } catch (error) {
     console.error("Error updating playlist:", error);
-    alert(`Failed to update playlist: ${error.message}`); // Provide user feedback
+    alert(`Failed to update playlist: ${error.message}`);
   }
 };
 
