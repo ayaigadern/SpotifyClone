@@ -1,75 +1,12 @@
-# Nuxt Minimal Starter
+# 🎵 Spotify Clone 🎵
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Welcome to my **Spotify Clone** – a sleek and responsive web app that mirrors the core features and design of the Spotify platform.
 
-## Setup
+## 🚀 Live Deployment
 
-Make sure to install dependencies:
+👉 **Check it out here:**  
+# [spotify-clone-sage-iota.vercel.app](https://spotify-clone-sage-iota.vercel.app)
 
-```bash
-# npm
-npm install
 
-# pnpm
-pnpm install
 
-# yarn
-yarn install
 
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
