@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useSpotify } from '../composables/useSpotify';
+import MediaPlayer from './mediaPlayer.vue';
 
 const { 
   userPlaylists, 
@@ -15,6 +16,7 @@ const {
 
 const searchQuery = ref('');
 const isSearching = ref(false);
+const currentTrack = ref(null);
 
 // Debounce function
 const debounce = (fn, wait) => {
@@ -43,6 +45,15 @@ onMounted(async () => {
   await fetchUserAlbums();
   await fetchUserArtists();
 });
+
+const playTrack = (track) => {
+  currentTrack.value = {
+    name: track.name,
+    artists: track.artists,
+    album: track.album,
+    preview_url: track.preview_url,
+  };
+};
 </script>
 
 <template>
@@ -58,7 +69,8 @@ onMounted(async () => {
         />
       </div>
 
-      <div class="space-y-8">        <!-- Search Results -->
+      <div class="space-y-8">
+        <!-- Search Results -->
         <template v-if="isSearching && searchQuery">
           <!-- Search Results - Tracks -->
           <div v-if="spotifySearchResults.tracks?.items?.length > 0">
@@ -68,6 +80,7 @@ onMounted(async () => {
                 v-for="track in spotifySearchResults.tracks.items"
                 :key="track.id"
                 class="bg-[#1e1e1e] p-4 rounded-lg cursor-pointer hover:bg-[#282828]"
+                @click="playTrack(track)"
               >
                 <img :src="track.album.images?.[0]?.url" alt="Track Cover" class="w-full h-32 object-cover rounded-md mb-2" />
                 <h3 class="text-white text-lg font-semibold">{{ track.name }}</h3>
@@ -186,6 +199,9 @@ onMounted(async () => {
         </template>
       </div>
     </div>
+
+    <!-- Media Player -->
+    <media-player :currentTrack="currentTrack" />
   </div>
 </template>
 

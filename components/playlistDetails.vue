@@ -2,6 +2,9 @@
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { getAccessToken } from '../composables/useSpotify';
+import { useNuxtApp } from '#app';
+import { initializePlayer, getPlayerState } from '../composables/useWebPlayer';
+import MediaPlayer from './mediaPlayer.vue';
 
 const props = defineProps({
   playlist: {
@@ -14,6 +17,26 @@ const tracks = ref([]);
 const totalDuration = ref(0);
 const isLoading = ref(true);
 const error = ref(null);
+const currentTrack = ref(null);
+
+const playTrack = (track) => {
+  currentTrack.value = track;
+};
+
+const sdkReady = ref(false);
+const { isReady } = getPlayerState();
+const nuxtApp = useNuxtApp();
+
+onMounted(() => {
+  if (window.Spotify) {
+    sdkReady.value = true;
+  } else {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      sdkReady.value = true;
+      initializePlayer();
+    };
+  }
+});
 
 const fetchTracks = async () => {
   if (!props.playlist?.tracks?.href) {
@@ -36,7 +59,6 @@ const fetchTracks = async () => {
       },
     });
 
-    // Extract tracks from the response and calculate total duration
     tracks.value = response.data.items.map(item => {
       if (!item.track) {
         console.warn('Track item is missing track data:', item);
@@ -62,7 +84,6 @@ const fetchTracks = async () => {
   }
 };
 
-// Watch for changes in the playlist prop
 watch(() => props.playlist, (newPlaylist) => {
   console.log('Playlist changed:', newPlaylist);
   if (newPlaylist && newPlaylist.id) {
@@ -70,7 +91,6 @@ watch(() => props.playlist, (newPlaylist) => {
   }
 }, { immediate: true });
 
-// Format duration from milliseconds to MM:SS
 const formatDuration = (ms) => {
   const minutes = Math.floor(ms / 60000);
   const seconds = Math.floor((ms % 60000) / 1000);
@@ -80,7 +100,6 @@ const formatDuration = (ms) => {
 
 <template>
   <div class="playlist-details min-h-screen">
-    <!-- Playlist Header -->
     <div class="p-8">
       <div class="flex items-end space-x-6">
         <img 
@@ -104,19 +123,15 @@ const formatDuration = (ms) => {
       </div>
     </div>
 
-    <!-- Loading State -->
     <div v-if="isLoading" class="px-8 py-4 text-gray-300 animate-pulse">
       Loading tracks...
     </div>
 
-    <!-- Error State -->
     <div v-else-if="error" class="px-8 py-4 text-red-500">
       {{ error }}
     </div>
 
-    <!-- Track List -->
     <div v-else class="px-8 pb-8">
-      <!-- Track Headers -->
       <div class="grid grid-cols-[16px_4fr_2fr_1fr] gap-4 px-4 py-2 border-b border-gray-700 text-gray-400 text-sm sticky top-0 bg-[#121212]/95 backdrop-blur-sm z-10">
         <div>#</div>
         <div>TITRE</div>
@@ -124,19 +139,17 @@ const formatDuration = (ms) => {
         <div class="text-right">DURÉE</div>
       </div>
 
-      <!-- No Tracks Message -->
       <div v-if="tracks.length === 0" class="text-gray-400 text-center py-8">
         Cette playlist ne contient aucun titre
       </div>
 
-      <!-- Tracks -->
       <div v-else class="mt-2">
         <div 
           v-for="(track, index) in tracks" 
           :key="track.id"
           class="group grid grid-cols-[16px_4fr_2fr_1fr] gap-4 px-4 py-2 hover:bg-[#2a2a2a] rounded-md transition-colors duration-200"
+          @click="playTrack(track)"
         >
-          <!-- Track Number -->
           <div class="flex items-center">
             <span class="text-gray-400 text-sm group-hover:hidden">{{ index + 1 }}</span>
             <button class="hidden group-hover:block text-white">
@@ -146,7 +159,6 @@ const formatDuration = (ms) => {
             </button>
           </div>
 
-          <!-- Title and Artist with Album Art -->
           <div class="flex items-center min-w-0">
             <div class="w-10 h-10 flex-shrink-0 mr-3 relative">
               <img 
@@ -166,16 +178,16 @@ const formatDuration = (ms) => {
             </div>
           </div>
 
-          <!-- Album -->
           <div class="flex items-center text-gray-400 text-sm truncate">
             <span class="hover:text-white hover:underline cursor-pointer">{{ track.album?.name }}</span>
           </div>
 
-          <!-- Duration -->
           <div class="flex items-center justify-end text-gray-400 text-sm">
             {{ formatDuration(track.duration_ms) }}
           </div>
         </div>
+
+        <media-player :currentTrack="currentTrack" />
       </div>
     </div>
   </div>

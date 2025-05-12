@@ -37,6 +37,21 @@ export default defineNuxtConfig({
     },
   },
 
+  plugins: [
+    { src: '~/plugins/spotify-sdk.client.js', mode: 'client' }
+  ],
+
+  app: {
+    head: {
+      script: [
+        {
+          src: 'https://sdk.scdn.co/spotify-player.js',
+          defer: true
+        }
+      ]
+    }
+  },
+
   watch: [
     '~/components/**',
     '~/layouts/**',

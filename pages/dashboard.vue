@@ -1,8 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Home from '../components/home.vue';
 import Sidebar from '../components/sidebar.vue';
 import PlaylistDetails from '../components/playlistDetails.vue';
+import { initializePlayer } from '../composables/useWebPlayer';
+import { getAccessToken } from '../composables/useSpotify';
 
 const selectedPlaylist = ref(null);
 
@@ -14,6 +16,19 @@ const openPlaylistDetails = (playlist) => {
 const goHome = () => {
   selectedPlaylist.value = null;
 };
+
+// Load Spotify Web Playback SDK
+onMounted(() => {
+  const script = document.createElement('script');
+  script.src = 'https://sdk.scdn.co/spotify-player.js';
+  script.async = true;
+  document.body.appendChild(script);
+
+  window.onSpotifyWebPlaybackSDKReady = () => {
+    console.log('Spotify Web Playback SDK Ready');
+    initializePlayer();
+  };
+});
 </script>
 
 <template>
