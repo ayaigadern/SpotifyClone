@@ -42,7 +42,7 @@ export default defineNuxtConfig({
         interval: 100               // Polling interval (ms) for faster reload
       },
       allowedHosts: [
-        '6868-196-200-180-29.ngrok-free.app', // Make sure this matches your actual ngrok subdomain
+        'spotify-clone-sage-iota.vercel.app', // Make sure this matches your actual ngrok subdomain
       ],
     },
   },

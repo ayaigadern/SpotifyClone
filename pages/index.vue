@@ -47,7 +47,7 @@ const TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const CLIENT_ID = '25f25e4b2c2a45e599e0f546bacfa179';
 const CLIENT_SECRET = '6462a2123fff4c59b0f0a63c0f6ff6d0';
 // Use the public URL for the redirect
-const REDIRECT_URI = 'https://6868-196-200-180-29.ngrok-free.app/callback';
+const REDIRECT_URI = 'https://spotify-clone-sage-iota.vercel.app/callback';
 const SCOPES = [
     'user-read-private',
     'user-read-email',
