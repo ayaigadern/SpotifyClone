@@ -17,8 +17,9 @@ const router = useRouter()
 // Spotify Client Credentials
 const CLIENT_ID = '25f25e4b2c2a45e599e0f546bacfa179';
 const CLIENT_SECRET = '6462a2123fff4c59b0f0a63c0f6ff6d0';
+
+const REDIRECT_URI = 'https://6868-196-200-180-29.ngrok-free.app/callback';
 const TOKEN_URL = 'https://accounts.spotify.com/api/token';
-const REDIRECT_URI = 'https://661b-196-200-180-30.ngrok-free.app/callback';
 
 // Optional: Custom localStorage keys for tokens
 const TOKEN_KEY = 'spotify_access_token'

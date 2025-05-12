@@ -2,6 +2,16 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
+   runtimeConfig: {
+    // Private keys: available only on the server
+    clientSecret: process.env.CLIENT_SECRET,
+
+    // Public keys: available on both client and server
+    public: {
+      clientId: process.env.CLIENT_ID,
+      redirectUri: process.env.REDIRECT_URI
+    },
+  },
   compatibilityDate: "2024-11-01",
 
   devtools: { enabled: false }, // Enable Nuxt devtools for better DX
@@ -32,10 +42,11 @@ export default defineNuxtConfig({
         interval: 100               // Polling interval (ms) for faster reload
       },
       allowedHosts: [
-        '661b-196-200-180-30.ngrok-free.app', // Make sure this matches your actual ngrok subdomain
+        '6868-196-200-180-29.ngrok-free.app', // Make sure this matches your actual ngrok subdomain
       ],
     },
   },
+  
 
   plugins: [
     { src: '~/plugins/spotify-sdk.client.js', mode: 'client' }
